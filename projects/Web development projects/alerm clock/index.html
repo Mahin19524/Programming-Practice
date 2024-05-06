@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Alarm Clock</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Custom styles for enhanced animations */
+    .alarm-animation {
+      animation: shake 0.5s ease infinite alternate;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(10px); }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-blue-300 to-blue-600 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-lg shadow-md">
+    <h1 class="text-3xl font-semibold mb-4 text-center text-gray-800">Advanced Alarm Clock</h1>
+    <div class="flex justify-center items-center mb-6">
+      <input type="time" id="alarmTime" class="px-4 py-2 border rounded-md mr-4">
+      <button id="setAlarmBtn" class="px-6 py-3 bg-blue-500 text-white rounded-md">Set Alarm</button>
+    </div>
+    <div class="mb-6">
+      <label for="alarmSound" class="block text-gray-800 mb-2">Select Alarm Sound:</label>
+      <input type="file" id="alarmSound" accept=".mp3,.wav" class="border rounded-md py-2 px-4">
+    </div>
+    <div id="clock" class="text-5xl font-bold text-center mb-6"></div>
+    <div id="alarmMessage" class="text-2xl text-red-500 font-semibold hidden">Alarm!</div>
+    <div class="flex justify-center">
+      <button id="snoozeBtn" class="px-6 py-3 bg-blue-500 text-white rounded-full mr-4 hidden">
+        <i class="fas fa-bed"></i> <!-- Icon for snooze -->
+      </button>
+      <button id="stopBtn" class="px-6 py-3 bg-red-500 text-white rounded-full hidden">
+        <i class="fas fa-stop"></i> <!-- Icon for stop -->
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const alarmTimeInput = document.getElementById('alarmTime');
+    const setAlarmBtn = document.getElementById('setAlarmBtn');
+    const clockDisplay = document.getElementById('clock');
+    const alarmMessage = document.getElementById('alarmMessage');
+    const snoozeBtn = document.getElementById('snoozeBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const alarmSoundInput = document.getElementById('alarmSound');
+    let alarmTime;
+    let alarmInterval;
+    let alarmSound;
+
+    // Function to update clock display
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      clockDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    // Function to set the alarm
+    function setAlarm() {
+      const now = new Date();
+      alarmTime = new Date(now.toDateString() + ' ' + alarmTimeInput.value);
+      if (alarmTime <= now) {
+        alarmTime.setDate(alarmTime.getDate() + 1); // If alarm time has passed, set it for the next day
+      }
+      clearInterval(alarmInterval);
+      alarmInterval = setInterval(checkAlarm, 1000);
+      setAlarmBtn.disabled = true;
+      alarmTimeInput.disabled = true;
+    }
+
+    // Function to check if alarm time has been reached
+    function checkAlarm() {
+      const now = new Date();
+      if (now.getHours() === alarmTime.getHours() && now.getMinutes() === alarmTime.getMinutes()) {
+        triggerAlarm();
+      }
+    }
+
+    // Function to trigger the alarm
+    function triggerAlarm() {
+      clearInterval(alarmInterval);
+      alarmMessage.classList.remove('hidden');
+      alarmMessage.classList.add('alarm-animation');
+      snoozeBtn.classList.remove('hidden');
+      stopBtn.classList.remove('hidden');
+      // Play alarm sound and loop until stopped
+      if (alarmSound) {
+        alarmSound.loop = true;
+        alarmSound.play();
+      }
+    }
+
+    // Event listener for Set Alarm button
+    setAlarmBtn.addEventListener('click', setAlarm);
+
+    // Event listener for Snooze button
+    snoozeBtn.addEventListener('click', () => {
+      alarmTime.setMinutes(alarmTime.getMinutes() + 5); // Snooze for 5 minutes
+      triggerAlarm();
+    });
+
+    // Event listener for Stop button
+    stopBtn.addEventListener('click', () => {
+      clearInterval(alarmInterval);
+      setAlarmBtn.disabled = false;
+      alarmTimeInput.disabled = false;
+      alarmMessage.classList.add('hidden');
+      snoozeBtn.classList.add('hidden');
+      stopBtn.classList.add('hidden');
+      // Stop alarm sound
+      if (alarmSound) {
+        alarmSound.pause();
+        alarmSound.currentTime = 0;
+      }
+    });
+
+    // Event listener for selecting alarm sound
+    alarmSoundInput.addEventListener('change', () => {
+      if (alarmSoundInput.files.length > 0) {
+        const selectedSound = alarmSoundInput.files[0];
+        alarmSound = new Audio(URL.createObjectURL(selectedSound));
+      }
+    });
+
+    // Update clock every second
+    setInterval(updateClock, 1000);
+    // Initial clock update
+    updateClock();
+  </script>
+</body>
+</html>
