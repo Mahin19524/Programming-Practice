@@ -43,6 +43,6 @@ Yes you can do. As it is a open source code so if i tell you to not copy paste, 
     Email : dr.ai.mahim@gmail.com
     Adress : Protabnogor, Sonargaon, Narayanganj, Bangladesh
 
-# I love Bangladehs
+# I love Bangladesh
 
 # Copyright © mahin19524. All rights reserved.
